@@ -10,12 +10,11 @@
           [cdkDropListConnectedTo]="[currentList, completedList]"
           class="example-list"
           (cdkDropListDropped)="drop($event)">
-          <div class="example-box" *ngFor="let task of todo" cdkDrag>
-            <nz-card nzTitle="{{ task.title }}" nzExtra="ID: {{ task.id }}">
+          <div class="example-box" *ngFor="let task of todo" cdkDrag   [cdkDragDisabled]="userData.role.name !== 'TECHNICIAN'">
+            <nz-card nzTitle="{{ task.name }}" nzExtra="ID: {{ task.id }}">
               <p>Description: {{ task.description }}</p>
-              <p>Time: {{ task.time }}</p>
-              <p>Created At: {{ task.created_at }}</p>
-              <p>Assigned To: {{ task.assigned_to }}</p>
+              <p>Time: {{ task.timeInHours }}</p>
+              <p>Assigned To:{{ task.assignedTo === null ? 'No Technical Assign' : task.assignedTo.firstName +' ' + task.assignedTo.lastName }}</p>
             </nz-card>
           </div>
         </div>
@@ -30,12 +29,12 @@
           [cdkDropListConnectedTo]="[todoList, completedList]"
           class="example-list"
           (cdkDropListDropped)="drop($event)">
-          <div class="example-box" *ngFor="let task of current" cdkDrag>
-            <nz-card nzTitle="{{ task.title }}" nzExtra="ID: {{ task.id }}">
+          <div class="example-box" *ngFor="let task of current" cdkDrag
+               [cdkDragDisabled]="userData.role.name !== 'TECHNICIAN'">
+            <nz-card nzTitle="{{ task.name }}" nzExtra="ID: {{ task.id }}">
               <p>Description: {{ task.description }}</p>
-              <p>Time: {{ task.time }}</p>
-              <p>Created At: {{ task.created_at }}"></p>
-              <p>Assigned To: {{ task.assigned_to }}"></p>
+              <p>Time: {{ task.timeInHours }}</p>
+              <p>Assigned To: {{ task.assignedTo === null ? 'No Technical Assign' : task.assignedTo.firstName +' ' + task.assignedTo.lastName }}</p>
             </nz-card>
           </div>
         </div>
@@ -50,12 +49,12 @@
           [cdkDropListConnectedTo]="[todoList, currentList]"
           class="example-list"
           (cdkDropListDropped)="drop($event)">
-          <div class="example-box" *ngFor="let task of completed" cdkDrag>
-            <nz-card nzTitle="{{ task.title }}" nzExtra="ID: {{ task.id }}">
+          <div class="example-box" *ngFor="let task of completed" cdkDrag
+               [cdkDragDisabled]="userData.role.name !== 'TECHNICIAN'">
+            <nz-card nzTitle="{{ task.name }}" nzExtra="ID: {{ task.id }}">
               <p>Description: {{ task.description }}</p>
-              <p>Time: {{ task.time }}</p>
-              <p>Created At: {{ task.created_at }}"></p>
-              <p>Assigned To: {{ task.assigned_to }}"></p>
+              <p>Time: {{ task.timeInHours }}</p>
+              <p>Assigned To: {{ task.assignedTo === null ? 'No Technical Assign' : task.assignedTo.firstName +' ' + task.assignedTo.lastName }}</p>
             </nz-card>
           </div>
         </div>
@@ -63,8 +62,8 @@
     </div>
   </nz-tab>
   <nz-tab nzTitle="Tasks">
-    <button nz-button style="margin-bottom: 10px; margin-right: 10px" nzType="primary" (click)="addTask()">Add Task</button>
-    <button nz-button style="margin-bottom: 10px" nzType="default" (click)="addContact()">Add Contact</button>
+    <button nz-button style="margin-bottom: 10px; margin-right: 10px" nzType="primary" *ngIf="userData.role.name === 'CLIENT'" (click)="addTask()">Add Task</button>
+    <button nz-button style="margin-bottom: 10px" nzType="default" (click)="addContact()" *ngIf="userData.role.name === 'TECHNICIAN'">Add Contact</button>
     <nz-table #basicTable [nzData]="tasks" nzBordered>
       <thead>
       <tr>
@@ -73,32 +72,35 @@
         <th >Time</th>
         <th >Created At</th>
         <th >Assigned To</th>
-        <th>Progress</th>
+        <th >Progress</th>
         <th >Status</th>
-        <th >Action</th>
+        <th *ngIf="userData.role.name !== 'TECHNICIAN'">Action</th>
       </tr>
       </thead>
       <tbody>
       <tr *ngFor="let task of basicTable.data">
-        <td>{{ task.title }}</td>
+        <td>{{ task.name }}</td>
         <td>{{ task.description }}</td>
-        <td>{{ task.time }}</td>
-        <td>{{ task.created_at }}</td>
-        <td>{{ task.assigned_to }}</td>
-        <td>
-          <nz-select  [(ngModel)]="value" nzPlaceHolder="Select a Percent">
+        <td>{{ task.timeInHours }} Hours</td>
+        <td>{{ task.createAt }}</td>
+        <td>{{ task.assignedTo === null ? 'No Technical Assign' : task.assignedTo.firstName +' ' + task.assignedTo.lastName }}</td>
+        <td *ngIf="userData.role.name === 'TECHNICIAN'">
+          <nz-select  [(ngModel)]="task.progress" nzPlaceHolder="Select a Percent" (ngModelChange)="onProgressChange(task, $event)">
             <nz-option *ngFor="let progress of progressSteps" [nzValue]="progress" [nzLabel]="progress +'%'"></nz-option>
           </nz-select>
         </td>
-        <td [ngClass]="{'status-todo': task.status === 'Todo', 'status-current': task.status === 'Current', 'status-completed': task.status === 'Completed'}">
+        <td *ngIf="userData.role.name !== 'TECHNICIAN'">
+          {{task.progress}} %
+        </td>
+        <td [ngClass]="{'status-todo': task.status === 'TODO', 'status-current': task.status === 'CURRENT', 'status-completed': task.status === 'COMPLETED'}">
           {{ task.status }}
         </td>
-        <td>
+        <td *ngIf="userData.role.name !== 'TECHNICIAN'">
           <button style="margin-right: 10px" nz-button nzType="primary" (click)="openEditModal(task)">
             <span nz-icon nzType="edit" nzTheme="outline"></span>
             Edit
           </button>
-          <button nz-button nzType="primary" (click)="confirmDelete(task)" nzDanger>
+          <button nz-button nzType="primary" *ngIf="userData.role.name === 'CLIENT'" (click)="confirmDelete(task)" nzDanger>
             <span nz-icon nzType="delete" nzTheme="outline" ></span>
             delete
           </button>
@@ -113,9 +115,9 @@
   <ng-container *nzModalContent>
   <form nz-form [formGroup]="taskForm" (ngSubmit)="handleOk()">
     <nz-form-item>
-      <nz-form-label><label for="title">Title</label></nz-form-label>
+      <nz-form-label><label for="name">Title</label></nz-form-label>
       <nz-form-control>
-        <input nz-input id="title" formControlName="title" />
+        <input nz-input id="name" formControlName="name" />
       </nz-form-control>
     </nz-form-item>
     <nz-form-item>
@@ -125,16 +127,10 @@
       </nz-form-control>
     </nz-form-item>
     <nz-form-item >
-      <nz-form-label ><label for="time">Time</label></nz-form-label>
+      <nz-form-label ><label for="timeInHours">Time</label></nz-form-label>
       <nz-form-control >
-        <input nz-input id="time" formControlName="time" />
+        <input nz-input type="number" id="timeInHours" formControlName="timeInHours" />
       </nz-form-control>
-    </nz-form-item>
-    <nz-form-item>
-      <nz-form-label ><label for="assigned_to">Assigned To</label></nz-form-label>
-      <nz-select id="assigned_to" formControlName="assigned_to" nzPlaceHolder="Select a person">
-        <nz-option *ngFor="let person of people" [nzValue]="person" [nzLabel]="person"></nz-option>
-      </nz-select>
     </nz-form-item>
   </form>
   </ng-container>
@@ -145,7 +141,7 @@
     <nz-form-item>
       <nz-form-label><label for="title">Title</label></nz-form-label>
       <nz-form-control>
-        <input nz-input  formControlName="title" />
+        <input nz-input id="title" formControlName="title" />
       </nz-form-control>
     </nz-form-item>
     <nz-form-item>
@@ -155,10 +151,10 @@
       </nz-form-control>
     </nz-form-item>
     <nz-form-item >
-      <nz-form-label ><label for="time">ticket</label></nz-form-label>
+      <nz-form-label ><label for="ticket">ticket</label></nz-form-label>
       <nz-form-control >
-        <nz-select formControlName="ticket"  nzPlaceHolder="Select a  ticket">
-          <nz-option *ngFor="let progress of tasks" [nzValue]="progress.id" [nzLabel]="progress.title"></nz-option>
+        <nz-select formControlName="ticket" id="ticket"  nzPlaceHolder="Select a  ticket">
+          <nz-option *ngFor="let progress of tasks" [nzValue]="progress.name" [nzLabel]="progress.name"></nz-option>
         </nz-select>
       </nz-form-control>
     </nz-form-item>

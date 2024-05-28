@@ -5,40 +5,29 @@
       <nz-form-item>
         <nz-form-label>First Name</nz-form-label>
         <nz-form-control>
-          <input nz-input formControlName="firstName" />
+          <input readonly nz-input formControlName="firstName" />
         </nz-form-control>
       </nz-form-item>
       <nz-form-item>
         <nz-form-label>Last Name</nz-form-label>
         <nz-form-control>
-          <input nz-input formControlName="lastName" />
+          <input nz-input readonly formControlName="lastName" />
         </nz-form-control>
       </nz-form-item>
       <nz-form-item>
         <nz-form-label>Phone</nz-form-label>
         <nz-form-control>
-          <input nz-input formControlName="phone" />
+          <input readonly nz-input formControlName="phone" />
         </nz-form-control>
       </nz-form-item>
       <nz-form-item>
         <nz-form-label>Email</nz-form-label>
         <nz-form-control>
-          <input nz-input formControlName="email" />
+          <input readonly nz-input formControlName="email" />
           <div *ngIf="profileForm.get('email')?.dirty && profileForm.get('email')?.errors" class="error-message">
             <span *ngIf="profileForm.get('email')?.hasError('required')">Email is required</span>
             <span *ngIf="profileForm.get('email')?.hasError('email')">Invalid email format</span>
           </div>
-        </nz-form-control>
-      </nz-form-item>
-      <nz-form-item>
-        <nz-form-label>Password</nz-form-label>
-        <nz-form-control>
-          <input nz-input type="password" formControlName="password" />
-        </nz-form-control>
-      </nz-form-item>
-      <nz-form-item>
-        <nz-form-control>
-          <button nz-button nzType="primary" (click)="submitProfile()" [nzLoading]="loading">Save</button>
         </nz-form-control>
       </nz-form-item>
     </form>

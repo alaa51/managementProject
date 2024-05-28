@@ -10,12 +10,16 @@ import {TecknicalListComponent} from "./pages/admin/tecknical-list/tecknical-lis
 import {UserListComponent} from "./pages/admin/user-list/user-list.component";
 import {StatsComponent} from "./pages/stats/stats.component";
 import {UserDetailsComponent} from "./pages/admin/user-details/user-details.component";
+import {AuthGuard} from "./config/auth.guard";
 
 const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: '/login' },
   { path: 'welcome', component: WelcomeComponent },
   { path: 'login', component: LoginComponent },
-  { path: 'dashboard', component: DashboardComponent, children:[
+  { path: 'dashboard',
+    component: DashboardComponent,
+    canActivate: [AuthGuard],
+    children:[
       { path: 'stats', component: StatsComponent },
       { path: 'home', component: HomeComponent },
       { path: 'profile', component: ProfilComponent },

@@ -3,6 +3,8 @@ import {recruiterList} from "../../../mocks/data";
 import {FormBuilder, Validators} from "@angular/forms";
 import {NzModalService} from "ng-zorro-antd/modal";
 import {Router} from "@angular/router";
+import {AdminService} from "../../../services/admin/admin.service";
+import {AuthServiceService} from "../../../services/auth/auth-service.service";
 
 @Component({
   selector: 'app-user-list',
@@ -11,45 +13,58 @@ import {Router} from "@angular/router";
 })
 export class UserListComponent implements OnInit {
 
-  data = recruiterList;
+  data:any =[]
   formData = this.fb.group({
-    name: [null, [Validators.required]],
+    firstName: [null, [Validators.required]],
     lastName: [null, [Validators.required]],
     phoneNumber: [null, [Validators.required]],
     email: [null, [Validators.required, Validators.email]],
     password: [null, [Validators.required]]
   });
   isModalVisible = false;
-  constructor(private modalService: NzModalService,private fb: FormBuilder,public router:Router) { }
+  constructor(
+    private modalService: NzModalService,
+    private fb: FormBuilder,
+    public adminService:AdminService,
+    public  authService: AuthServiceService,
+    public router:Router) { }
 
   ngOnInit(): void {
+    this.onGetClient();
   }
-  showConfirm(): void {
+  showConfirm(id:string): void {
     this.modalService.confirm({
       nzTitle: 'Confirm',
-      nzContent: 'ARe you sure you want to deactivate this offer??.',
+      nzContent: 'ARe you sure you want to block this client??.',
       nzOkText: 'Deactivate',
       nzCancelText: 'Cancel',
       nzOkType: 'primary',
-      nzOkDanger: true
+      nzOkDanger: true,
+      nzOnOk: ()=>this.onDisableUser(id)
+
     });
   }
+  showConfirmEnable(id:string): void {
+    this.modalService.confirm({
+      nzTitle: 'Confirm',
+      nzContent: 'ARe you sure you want to re-activate this client??.',
+      nzOkText: 'Activate',
+      nzCancelText: 'Cancel',
+      nzOkType: 'primary',
+      nzOnOk: ()=>this.onEnableUser(id)
+    });
+  }
+  onGetClient():void{
+    this.adminService.getClient().subscribe((res:any)=>{
+      this.data = res.data;
+    })
+  }
   addData() {
-    const newData = {
-      id: this.data.length + 1,
-      name: this.formData.value.name,
-      lastName: this.formData.value.lastName,
-      phoneNumber: this.formData.value.phoneNumber,
-      email: this.formData.value.email
-    };
-    console.log('dsfdsfdsf', newData)
-    this.data.push(newData);
-
-    // Clear the form after adding data
-    this.formData.reset();
-
-    // Close the modal after adding data
-    this.isModalVisible = false;
+    this.authService.RegisterClient(this.formData.value).subscribe((res:any)=>{
+      console.log(res);
+      this.onGetClient();
+      this.isModalVisible = false;
+    })
   }
 
   // Method to open the modal
@@ -65,6 +80,16 @@ export class UserListComponent implements OnInit {
       { queryParams: { id: id} }
     );
 
+  }
+  onEnableUser(id:string):void{
+    this.authService.enableUSer(id).subscribe((res:any)=>{
+      this.onGetClient();
+    })
+  }
+  onDisableUser(id:string):void{
+    this.authService.disableUser(id).subscribe((res:any)=>{
+      this.onGetClient();
+    })
   }
 
 }

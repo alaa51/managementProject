@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import {CdkDragDrop, moveItemInArray, transferArrayItem} from "@angular/cdk/drag-drop";
 import {FormBuilder, Validators} from "@angular/forms";
 import {NzModalService} from "ng-zorro-antd/modal";
+import {TasksService} from "../../services/tasks/tasks.service";
 
 @Component({
   selector: 'app-home',
@@ -11,6 +12,8 @@ import {NzModalService} from "ng-zorro-antd/modal";
 
 
 export class HomeComponent implements OnInit {
+  // @ts-ignore
+  userData = JSON.parse(localStorage.getItem('user'))
   selectedTask: any = null;
   isModalVisible = false;
   isContactVisible = false;
@@ -18,27 +21,17 @@ export class HomeComponent implements OnInit {
  value= 0
 
   tasks:any = [];
-  people = ['Alice', 'Bob', 'Charlie', 'Diana'];
 
 
-  todo = [
-    { id: 1, title: 'Task 1', description: 'Description for task 1', time: '2 hours', created_at: '2024-05-17T10:00:00Z', assigned_to: 'Alice' },
-    { id: 2, title: 'Task 2', description: 'Description for task 2', time: '3 hours', created_at: '2024-05-17T11:00:00Z', assigned_to: 'Bob' },
-  ];
+  todo:any = [];
 
-  current = [
-    { id: 3, title: 'Task 3', description: 'Description for task 3', time: '1.5 hours', created_at: '2024-05-17T12:00:00Z', assigned_to: 'Charlie' },
-  ];
+  current:any = [];
 
-  completed = [
-    { id: 4, title: 'Task 4', description: 'Description for task 4', time: '4 hours', created_at: '2024-05-17T13:00:00Z', assigned_to: 'Diana' },
-  ];
+  completed:any = [];
   taskForm = this.fb.group({
-    title: ['', Validators.required],
+    name: ['', Validators.required],
     description: ['', Validators.required],
-    time: ['', Validators.required],
-    created_at: ['', ],
-    assigned_to: ['', Validators.required],
+    timeInHours: ['', Validators.required],
   });
   contact = this.fb.group({
     title: ['', Validators.required],
@@ -55,11 +48,24 @@ export class HomeComponent implements OnInit {
         event.previousIndex,
         event.currentIndex,
       );
+      const id = event.container.data[event.currentIndex]['id']
+      const progress = event.container.data[event.currentIndex].progress
+      if (event.container.id === 'cdk-drop-list-0'){
+        this.onUpdateTaskStatus(id,progress,'TODO')
+      }
+      if (event.container.id === 'cdk-drop-list-1'){
+        this.onUpdateTaskStatus(id,progress,'CURRENT')
+
+      }
+      if (event.container.id === 'cdk-drop-list-2'){
+        this.onUpdateTaskStatus(id,progress,'COMPLETED')
+      }
     }
   }
   openEditModal(task: any): void {
     this.selectedTask = { ...task }; // Create a copy of the task to edit
-    this.taskForm.patchValue(this.selectedTask); // Populate the form with the task data
+    this.taskForm.patchValue(this.selectedTask);
+    console.log(this.selectedTask)// Populate the form with the task data
     this.isModalVisible = true;
   }
   addTask(): void {
@@ -76,13 +82,11 @@ export class HomeComponent implements OnInit {
     if (this.taskForm.valid) {
       if (this.selectedTask) {
         // Editing existing task
-        Object.assign(this.selectedTask, this.taskForm.value);
+        this.onUpdateTask();
       } else {
         // Adding new task
-        const newTask = { ...this.taskForm.value, id: this.tasks.length + 1, created_at: new Date().toISOString() };
-        this.tasks.push(newTask);
+       this.onAddTAsk()
       }
-      this.isModalVisible = false;
     }
   }
 
@@ -91,6 +95,7 @@ export class HomeComponent implements OnInit {
   }
   handleOkContact(): void {
     if (this.contact.valid) {
+      this.onContactAdmin();
       this.isContactVisible = false;
     }
   }
@@ -99,40 +104,113 @@ export class HomeComponent implements OnInit {
     this.isContactVisible = false;
   }
 
-  updateTask(updatedTask: any): void {
-    const taskList = [this.todo, this.current, this.completed];
-    for (const list of taskList) {
-      const index = list.findIndex(task => task.id === updatedTask.id);
-      if (index !== -1) {
-        list[index] = updatedTask;
-        break;
-      }
-    }
-  }
   confirmDelete(task: any): void {
     this.modal.error({
       nzTitle: 'Are you sure you want to delete this task?',
-      nzContent: `<b>${task.title}</b>`,
+      nzContent: `<b>${task.name}</b>`,
       nzOkText: 'Yes',
       nzOkType: 'primary',
       nzOkDanger: true,
-      nzOnOk: () => this.deleteTask(task.id),
+      nzOnOk: () => this.onDeleteTAsk(task.id),
       nzCancelText: 'No',
       nzOnCancel: () => console.log('Cancel')
     });
   }
-  deleteTask(id: number): void {
-    console.log('ok')
+constructor(
+  private fb: FormBuilder,
+  private modal: NzModalService,
+  public taskService:TasksService
+) {
+}
+
+onGetTask():void{
+    this.taskService.getTasks().subscribe((res:any)=>{
+      this.tasks = res.data
+    })
+}
+  onProgressChange(task: any, progress: number) {
+    task.progress = progress;
+    this.taskService.updateProgress(task.id, progress, this.userData.id).subscribe((res:any)=>{
+      this.onGetTask()
+    })
   }
-constructor(private fb: FormBuilder,private modal: NzModalService) {
+  onAddTAsk():void{
+    let newData = {...this.taskForm.value, progress: 0,status: "TODO"}
+    this.taskService.addTasks(newData).subscribe((res:any)=>{
+      this.onGetTask();
+      this.onGetCurrentFiltered('TODO')
+      this.onGetCurrentFiltered('CURRENT')
+      this.onGetCurrentFiltered('COMPLETED')
+      this.isModalVisible = false;
+
+    })
+  }
+  onDeleteTAsk(id:any):void{
+    this.taskService.deleteTasks(id).subscribe((res:any)=>{
+      this.onGetTask();
+      this.onGetCurrentFiltered('TODO')
+      this.onGetCurrentFiltered('CURRENT')
+      this.onGetCurrentFiltered('COMPLETED')
+    })
+  }
+ onUpdateTask(){
+   let newData =
+     {
+       ...this.taskForm.value,
+     progress: this.selectedTask.progress,
+       status: this.selectedTask.status
+     }
+   this.taskService.updateTask(this.selectedTask.id, newData).subscribe((res:any)=>{
+      console.log(res)
+      this.onGetTask()
+     this.onGetCurrentFiltered('TODO')
+     this.onGetCurrentFiltered('CURRENT')
+     this.onGetCurrentFiltered('COMPLETED')
+      this.isModalVisible = false;
+
+    })
+ }
+ onGetCurrentFiltered(status :string):void{
+    this.taskService.getFilteredTask(status).subscribe((res)=>{
+      if (status === 'TODO'){
+        this.todo = res.data
+        console.log('TODOD',res.data)
+      }
+      if (status === 'CURRENT'){
+        this.current = res.data
+        console.log('CURRENT',res.data)
+      }
+      if (status === 'COMPLETED'){
+        this.completed = res.data
+        console.log('COMPLETED',res.data)
+
+      }
+    })
+
+ }
+ onUpdateTaskStatus(id:any,progress:any,status:any):void{
+    this.taskService.updateStatus(id,progress,this.userData?.id,status).subscribe((res)=>{
+      this.onGetCurrentFiltered('TODO')
+      this.onGetCurrentFiltered('CURRENT')
+      this.onGetCurrentFiltered('COMPLETED')
+      this.onGetTask();
+    })
+ }
+onContactAdmin():void{
+    let name = this.contact.value.title
+    let description = this.contact.value.description
+    let ticket = this.contact.value.ticket
+    this.taskService.contactAdmin(name,description,ticket).subscribe((res:any)=>{
+      console.log(res)
+    })
 }
 
   ngOnInit(): void {
-    this.tasks = [
-      ...this.todo.map(task => ({ ...task, status: 'Todo' })),
-      ...this.current.map(task => ({ ...task, status: 'Current' })),
-      ...this.completed.map(task => ({ ...task, status: 'Completed' }))
-    ];
+    console.log(this.userData?.id)
+   this.onGetTask()
+    this.onGetCurrentFiltered('TODO')
+    this.onGetCurrentFiltered('CURRENT')
+    this.onGetCurrentFiltered('COMPLETED')
   }
 }
 

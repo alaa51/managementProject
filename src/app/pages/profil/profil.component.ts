@@ -7,28 +7,19 @@ import {FormBuilder, FormGroup, Validators} from "@angular/forms";
   styleUrls: ['./profil.component.css']
 })
 export class ProfilComponent implements OnInit {
+  // @ts-ignore
+  userData = JSON.parse(localStorage.getItem('user'))
   loading: boolean = false;
 
   constructor(private fb: FormBuilder) { }
 
   profileForm = this.fb.group({
-    email: ['', [Validators.required, Validators.email]],
-    firstName: ['', Validators.required],
-    phone: ['', Validators.required],
-    lastName: ['', Validators.required],
-    password: ['', [Validators.required, Validators.minLength(6)]]
+    email: [this.userData.email, [Validators.required, Validators.email]],
+    firstName: [this.userData.firstName, Validators.required],
+    phone: [this.userData.phoneNumber, Validators.required],
+    lastName: [this.userData.lastName, Validators.required],
   });
   ngOnInit(): void {
   }
 
-  submitProfile() {
-    if (this.profileForm.valid) {
-      this.loading = true;
-      // Here you can handle form submission, e.g., send data to server
-      setTimeout(() => {
-        console.log(this.profileForm.value);
-        this.loading = false;
-      }, 2000);
-    }
-  }
 }

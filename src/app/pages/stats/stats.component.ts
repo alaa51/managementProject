@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import Chart from 'chart.js/auto';
+import {AnalysisService} from "../../services/analysis/analysis.service";
+import {TasksService} from "../../services/tasks/tasks.service";
 
 @Component({
   selector: 'app-stats',
@@ -9,9 +11,13 @@ import Chart from 'chart.js/auto';
 export class StatsComponent implements OnInit {
   public chart: any;
   public chart2: any;
-  numberOfClients = 120;
-  numberOfTasks = 75;
-  completedTasks = 60;
+  numberOfClients = 0;
+  numberOfTasks = 0;
+  completedTasks = 0;
+  chart1Labels :any= [];
+  chart2Labels :any= [];
+  chart2Values :any= [];
+  chart1Values :any= [];
 
   createChart(){
 
@@ -19,20 +25,12 @@ export class StatsComponent implements OnInit {
       type: 'bar', //this denotes tha type of chart
 
       data: {// values on X-Axis
-        labels: ['2022-05-10', '2022-05-11', '2022-05-12','2022-05-13',
-          '2022-05-14', '2022-05-15', '2022-05-16','2022-05-17', ],
+        labels: this.chart1Labels,
         datasets: [
           {
-            label: "Sales",
-            data: ['467','576', '572', '79', '92',
-              '574', '573', '576'],
+            label: "Tasks",
+            data: this.chart1Values,
             backgroundColor: 'blue'
-          },
-          {
-            label: "Profit",
-            data: ['542', '542', '536', '327', '17',
-              '0.00', '538', '541'],
-            backgroundColor: 'limegreen'
           }
         ]
       },
@@ -48,21 +46,13 @@ export class StatsComponent implements OnInit {
       type: 'line', //this denotes tha type of chart
 
       data: {// values on X-Axis
-        labels: ['2022-05-10', '2022-05-11', '2022-05-12','2022-05-13',
-          '2022-05-14', '2022-05-15', '2022-05-16','2022-05-17', ],
+        labels: this.chart2Labels,
         datasets: [
           {
-            label: "Sales",
-            data: ['467','576', '572', '79', '92',
-              '574', '573', '576'],
-            backgroundColor: 'blue'
+            label: "Client",
+            data: this.chart2Values,
+            backgroundColor: 'green'
           },
-          {
-            label: "Profit",
-            data: ['542', '542', '536', '327', '17',
-              '0.00', '538', '541'],
-            backgroundColor: 'limegreen'
-          }
         ]
       },
       options: {
@@ -71,11 +61,50 @@ export class StatsComponent implements OnInit {
 
     });
   }
-  constructor() { }
+  constructor(
+    public analysisService: AnalysisService,
+    public taskService: TasksService
+  ) { }
+  onGetClientPerMouth():void{
+    this.analysisService.getClientPerMonth().subscribe((res)=>{
+      for (const key in res.data) {
+        if (res.data.hasOwnProperty(key)) {
+          this.chart2Labels.push(key);
+          this.chart2Values.push(res.data[key]);
+        }
+      }
+      this.numberOfClients = this.chart2Values.reduce((acc: any, value: any) => acc + value, 0);
+
+      this.createChart2()
+    })
+
+  }
+  onGetTask():void{
+    this.taskService.getFilteredTask('COMPLETED').subscribe((res:any)=>{
+      this.completedTasks = res.data.length
+    })
+    this.taskService.getTasks().subscribe((res:any)=>{
+      this.numberOfTasks = res.data.length
+    })
+  }
+  onGetTasksInMonth():void{
+    this.analysisService.getTasksInMonth().subscribe((res)=>{
+      for (const key in res.data) {
+        if (res.data.hasOwnProperty(key)) {
+          this.chart1Labels.push(key);
+          this.chart1Values.push(res.data[key]);
+        }
+      }
+      this.createChart();
+
+    })
+
+  }
 
   ngOnInit(): void {
-    this.createChart();
-    this.createChart2()
+    this.onGetClientPerMouth();
+    this.onGetTasksInMonth();
+    this.onGetTask();
 
   }
 

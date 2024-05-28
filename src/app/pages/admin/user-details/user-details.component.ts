@@ -3,6 +3,7 @@ import {ActivatedRoute} from "@angular/router";
 import {materiel, recruiterList} from "../../../mocks/data";
 import {FormBuilder, Validators} from "@angular/forms";
 import {NzModalService} from "ng-zorro-antd/modal";
+import {MaterielService} from "../../../services/materiel/materiel.service";
 
 @Component({
   selector: 'app-user-details',
@@ -11,54 +12,62 @@ import {NzModalService} from "ng-zorro-antd/modal";
 })
 export class UserDetailsComponent implements OnInit {
   userId: string | null = null;
-  data = materiel;
+  data:any = [];
   isEditing = false;
   currentEditId: number | null = null;
-  client = {
-    id: 1,
-    name: 'Liam',
-    lastName: 'Nguyen',
-    phoneNumber: '432-156-9870',
-    email: 'liam.nguyen@example.com'
-  };
+  client : any;
 
 
   formData = this.fb.group({
-    title : [null, [Validators.required]],
+    name : [null, [Validators.required]],
     description: [null, [Validators.required]],
   });
   isModalVisible = false;
-  constructor(private route: ActivatedRoute,private modalService: NzModalService,private fb: FormBuilder) {}
+  constructor(
+    private route: ActivatedRoute,
+    private modalService: NzModalService,
+    private fb: FormBuilder,
+    public materielService : MaterielService
+    ) {}
 
-  showConfirm(): void {
+  showConfirm(id:any): void {
     this.modalService.confirm({
       nzTitle: 'Confirm',
       nzContent: 'ARe you sure you want to Delete this materiel??.',
       nzOkText: 'Delete',
       nzCancelText: 'Cancel',
       nzOkType: 'primary',
-      nzOkDanger: true
+      nzOkDanger: true,
+      nzOnOk: ()=>this.onDeleteData(id)
     });
   }
   addData() {
-    const newData = {
-      id: this.data.length + 1,
-      title: this.formData.value.title,
-      description: this.formData.value.description,
-    };
-    this.data.push(newData);
-
-    // Clear the form after adding data
-    this.formData.reset();
-
-    // Close the modal after adding data
-    this.isModalVisible = false;
+    if (this.isEditing){
+      this.materielService.updateMateriel(this.currentEditId, this.formData.value).subscribe((res:any)=>{
+        console.log(res);
+        this.onGetMateriel(this.userId);
+        this.isModalVisible = false;
+      })
+    }
+    else {
+      this.materielService.addMateriel(this.userId,this.formData.value).subscribe((res:any)=>{
+        console.log(res)
+        this.onGetMateriel(this.userId);
+        this.isModalVisible = false;
+      })
+    }
+  }
+  onDeleteData(id:string):void{
+    this.materielService.deleteMateriel(id).subscribe((res:any)=>{
+      console.log(res);
+      this.onGetMateriel(this.userId);
+    })
   }
   openEditModal(item: any): void {
     this.isEditing = true;
     this.currentEditId = item.id;
     this.formData.setValue({
-      title: item.title,
+      name: item.name,
       description: item.description
     });
     this.isModalVisible = true;
@@ -74,11 +83,22 @@ export class UserDetailsComponent implements OnInit {
   handleCancel() {
     this.isModalVisible = false;
   }
+  onGetUserDetails(id:any):void{
+    this.materielService.getUSerDetails(id).subscribe((res:any)=>{
+      this.client = res.data
+    })
+  }
+  onGetMateriel(id:any):void{
+    this.materielService.getMateriel(id).subscribe((res:any)=>{
+      this.data = res.data
+    })
+  }
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
       this.userId = params['id'];
-      console.log('User ID:', this.userId);
     });
+    this.onGetUserDetails(this.userId);
+    this.onGetMateriel(this.userId);
   }
 
 }

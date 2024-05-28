@@ -7,7 +7,7 @@ import { en_US } from 'ng-zorro-antd/i18n';
 import { registerLocaleData } from '@angular/common';
 import en from '@angular/common/locales/en';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
+import {HTTP_INTERCEPTORS, HttpClientModule} from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppRoutingModule } from './app-routing.module';
 import { IconsProviderModule } from './icons-provider.module';
@@ -35,6 +35,8 @@ import {NzTableModule} from "ng-zorro-antd/table";
 import {NzFormModule} from "ng-zorro-antd/form";
 import {NzSelectModule} from "ng-zorro-antd/select";
 import { UserDetailsComponent } from './pages/admin/user-details/user-details.component';
+import {HttpInterceptorService} from "./config/interceptor.interceptor";
+import {NzNotificationModule} from "ng-zorro-antd/notification";
 
 registerLocaleData(en);
 
@@ -75,8 +77,18 @@ registerLocaleData(en);
     NzTableModule,
     NzFormModule,
     NzSelectModule,
+    NzNotificationModule
   ],
-  providers: [{ provide: NZ_I18N, useValue: en_US }],
+  providers: [
+    { provide: NZ_I18N,
+      useValue: en_US
+    },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: HttpInterceptorService,
+      multi: true,
+    },HttpInterceptorService
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

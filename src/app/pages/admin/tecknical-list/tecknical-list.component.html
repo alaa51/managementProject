@@ -4,7 +4,7 @@
 <nz-table [nzScroll]="{ x: '1200px', y: '60vh' }" #middleTable nzSize="middle" [nzData]="data">
   <thead>
   <tr>
-    <th nzWidth="80px">id</th>
+    <th>id</th>
     <th>Name</th>
     <th>Last Name</th>
     <th>phoneNumber</th>
@@ -15,13 +15,13 @@
   <tbody>
   <tr *ngFor="let data of middleTable.data">
     <td>{{ data.id }}</td>
-    <td>{{ data.name }}</td>
+    <td>{{ data?.firstName }}</td>
     <td>{{ data.lastName }}</td>
     <td>{{ data.phoneNumber }}</td>
     <td>{{ data.email }}</td>
     <td>
-      <button nz-button nzType="primary" (click)="showConfirm()" nzDanger>Deactivate</button>
-    </td>
+      <button *ngIf="data.isEnabled === true" style="margin-right: 10px" nz-button nzType="primary" (click)="showConfirm(data.id)" nzDanger>Block</button>
+      <button *ngIf="data.isEnabled === false" style="margin-right: 10px" nz-button nzType="primary" (click)="showConfirmEnable(data.id)">Activate</button>    </td>
   </tr>
   </tbody>
 </nz-table>
@@ -31,7 +31,7 @@
       <nz-form-item>
         <nz-form-label>Name</nz-form-label>
         <nz-form-control>
-          <input nz-input formControlName="name" required>
+          <input nz-input formControlName="firstName" required>
         </nz-form-control>
       </nz-form-item>
 
