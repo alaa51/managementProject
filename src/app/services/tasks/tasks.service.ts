@@ -36,4 +36,7 @@ export class TasksService {
   contactAdmin(name:any, description:any, task: any):Observable<any>{
     return  this.http.get(BASE_URL+'task/technician/send?title='+name+'&description='+description+'&task='+task)
   }
+  assignTo(id: any, technicianID:any, data:any):Observable<any>{
+    return  this.http.put(BASE_URL+ 'task/admin/'+id+'?assignedToId='+ technicianID,data)
+  }
 }

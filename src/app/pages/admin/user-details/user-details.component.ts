@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import {ActivatedRoute} from "@angular/router";
 import {materiel, recruiterList} from "../../../mocks/data";
 import {FormBuilder, Validators} from "@angular/forms";
@@ -11,6 +11,8 @@ import {MaterielService} from "../../../services/materiel/materiel.service";
   styleUrls: ['./user-details.component.css']
 })
 export class UserDetailsComponent implements OnInit {
+  @ViewChild('clientDetails') clientDetails!: ElementRef;
+
   userId: string | null = null;
   data:any = [];
   isEditing = false;
@@ -99,6 +101,14 @@ export class UserDetailsComponent implements OnInit {
     });
     this.onGetUserDetails(this.userId);
     this.onGetMateriel(this.userId);
+  }
+  printClientDetails() {
+    const printContents = this.clientDetails.nativeElement.innerHTML;
+    const originalContents = document.body.innerHTML;
+    document.body.innerHTML = printContents;
+    window.print();
+    document.body.innerHTML = originalContents;
+    window.location.reload(); // Reload to restore original content
   }
 
 }

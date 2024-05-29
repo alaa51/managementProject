@@ -24,4 +24,7 @@ export class AuthServiceService {
   disableUser(id:string):Observable<any>{
     return  this.http.put(BASE_URL+'users/admin/disable/'+ id, {})
   }
+  updateUser(data:any):Observable<any>{
+    return  this.http.put(BASE_URL+'users/all/update' , data)
+  }
 }

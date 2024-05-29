@@ -3,6 +3,7 @@ import {CdkDragDrop, moveItemInArray, transferArrayItem} from "@angular/cdk/drag
 import {FormBuilder, Validators} from "@angular/forms";
 import {NzModalService} from "ng-zorro-antd/modal";
 import {TasksService} from "../../services/tasks/tasks.service";
+import {AdminService} from "../../services/admin/admin.service";
 
 @Component({
   selector: 'app-home',
@@ -19,6 +20,8 @@ export class HomeComponent implements OnInit {
   isContactVisible = false;
   progressSteps = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
  value= 0
+  listTechnician:any =[]
+  name: any
 
   tasks:any = [];
 
@@ -38,6 +41,11 @@ export class HomeComponent implements OnInit {
     description: ['', Validators.required],
     ticket: ['', Validators.required],
   });
+  onGetTechnical():void{
+    this.adminService.getTechnical().subscribe((res:any)=>{
+      this.listTechnician = res.data;
+    })
+  }
   drop(event: CdkDragDrop<any[]>) {
     if (event.previousContainer === event.container) {
       moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
@@ -119,7 +127,8 @@ export class HomeComponent implements OnInit {
 constructor(
   private fb: FormBuilder,
   private modal: NzModalService,
-  public taskService:TasksService
+  public taskService:TasksService,
+  public adminService: AdminService
 ) {
 }
 
@@ -134,6 +143,11 @@ onGetTask():void{
       this.onGetTask()
     })
   }
+ /* onTechnicalChange( task:any, technicianID: any) {
+    this.taskService.assignTo(task.id,name,task).subscribe((res:any)=>{
+      console.log(res)
+    })
+  }*/
   onAddTAsk():void{
     let newData = {...this.taskForm.value, progress: 0,status: "TODO"}
     this.taskService.addTasks(newData).subscribe((res:any)=>{
@@ -205,9 +219,12 @@ onContactAdmin():void{
     })
 }
 
+
+
   ngOnInit(): void {
     console.log(this.userData?.id)
-   this.onGetTask()
+   this.onGetTask();
+    this.onGetTechnical()
     this.onGetCurrentFiltered('TODO')
     this.onGetCurrentFiltered('CURRENT')
     this.onGetCurrentFiltered('COMPLETED')

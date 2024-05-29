@@ -96,10 +96,16 @@
           {{ task.status }}
         </td>
         <td *ngIf="userData.role.name !== 'TECHNICIAN'">
-          <button style="margin-right: 10px" nz-button nzType="primary" (click)="openEditModal(task)">
+          <button style="margin-right: 10px" nz-button nzType="primary" *ngIf="userData.role.name === 'CLIENT'" (click)="openEditModal(task)">
             <span nz-icon nzType="edit" nzTheme="outline"></span>
             Edit
           </button>
+       <!--   <div>
+            Assign to
+            <nz-select  [(ngModel)]="task?.assignedTo?.id" name="name"  nzPlaceHolder="Select a  Technician" (ngModelChange)="onTechnicalChange(task,$event)">
+              <nz-option *ngFor="let teck of listTechnician" [nzValue]="teck.id"  [nzLabel]="teck.firstName + ' ' + teck.lastName"></nz-option>
+            </nz-select>
+          </div>-->
           <button nz-button nzType="primary" *ngIf="userData.role.name === 'CLIENT'" (click)="confirmDelete(task)" nzDanger>
             <span nz-icon nzType="delete" nzTheme="outline" ></span>
             delete

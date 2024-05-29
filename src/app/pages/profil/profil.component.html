@@ -5,30 +5,29 @@
       <nz-form-item>
         <nz-form-label>First Name</nz-form-label>
         <nz-form-control>
-          <input readonly nz-input formControlName="firstName" />
+          <input  nz-input formControlName="firstName" />
         </nz-form-control>
       </nz-form-item>
       <nz-form-item>
         <nz-form-label>Last Name</nz-form-label>
         <nz-form-control>
-          <input nz-input readonly formControlName="lastName" />
+          <input nz-input  formControlName="lastName" />
         </nz-form-control>
       </nz-form-item>
       <nz-form-item>
         <nz-form-label>Phone</nz-form-label>
         <nz-form-control>
-          <input readonly nz-input formControlName="phone" />
+          <input  nz-input formControlName="phoneNumber" />
         </nz-form-control>
       </nz-form-item>
       <nz-form-item>
         <nz-form-label>Email</nz-form-label>
         <nz-form-control>
           <input readonly nz-input formControlName="email" />
-          <div *ngIf="profileForm.get('email')?.dirty && profileForm.get('email')?.errors" class="error-message">
-            <span *ngIf="profileForm.get('email')?.hasError('required')">Email is required</span>
-            <span *ngIf="profileForm.get('email')?.hasError('email')">Invalid email format</span>
-          </div>
         </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <button nz-button nzSize="large" nzType="primary" (click)="onSubmit()">UPDATE PROFILE</button>
       </nz-form-item>
     </form>
   </div>
