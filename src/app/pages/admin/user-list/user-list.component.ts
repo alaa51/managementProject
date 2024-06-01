@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import {recruiterList} from "../../../mocks/data";
-import {FormBuilder, Validators} from "@angular/forms";
+import {UntypedFormBuilder, Validators} from "@angular/forms";
 import {NzModalService} from "ng-zorro-antd/modal";
 import {Router} from "@angular/router";
 import {AdminService} from "../../../services/admin/admin.service";
@@ -24,7 +24,7 @@ export class UserListComponent implements OnInit {
   isModalVisible = false;
   constructor(
     private modalService: NzModalService,
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
     public adminService:AdminService,
     public  authService: AuthServiceService,
     public router:Router) { }

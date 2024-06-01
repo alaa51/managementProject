@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import {FormBuilder, FormGroup, Validators} from "@angular/forms";
+import {UntypedFormBuilder, FormGroup, Validators} from "@angular/forms";
 import {AuthServiceService} from "../../services/auth/auth-service.service";
 
 @Component({
@@ -12,7 +12,7 @@ export class ProfilComponent implements OnInit {
   userData = JSON.parse(localStorage.getItem('user'))
   loading: boolean = false;
 
-  constructor(private fb: FormBuilder,public user:AuthServiceService) { }
+  constructor(private fb: UntypedFormBuilder,public user:AuthServiceService) { }
 
   profileForm = this.fb.group({
     firstName: [this.userData.firstName, Validators.required],

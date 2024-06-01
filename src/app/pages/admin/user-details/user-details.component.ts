@@ -1,7 +1,7 @@
 import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import {ActivatedRoute} from "@angular/router";
 import {materiel, recruiterList} from "../../../mocks/data";
-import {FormBuilder, Validators} from "@angular/forms";
+import {UntypedFormBuilder, Validators} from "@angular/forms";
 import {NzModalService} from "ng-zorro-antd/modal";
 import {MaterielService} from "../../../services/materiel/materiel.service";
 
@@ -28,7 +28,7 @@ export class UserDetailsComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private modalService: NzModalService,
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
     public materielService : MaterielService
     ) {}
 

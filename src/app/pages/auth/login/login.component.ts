@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import {FormBuilder, Validators} from "@angular/forms";
+import {UntypedFormBuilder, Validators} from "@angular/forms";
 import {Router} from "@angular/router";
 import {AuthServiceService} from "../../../services/auth/auth-service.service";
 import {catchError, of} from "rxjs";
@@ -16,7 +16,7 @@ export class LoginComponent implements OnInit {
     password: ['', [Validators.required]]
   });
 
-  constructor(private fb: FormBuilder, public router: Router, public  authService : AuthServiceService,
+  constructor(private fb: UntypedFormBuilder, public router: Router, public  authService : AuthServiceService,
               private notification: NzNotificationService // Inject NzNotificationService
   ) { }
 

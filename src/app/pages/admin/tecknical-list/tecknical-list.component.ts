@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import {NzModalService} from "ng-zorro-antd/modal";
 import {recruiterList} from "../../../mocks/data";
-import {FormBuilder, Validators} from "@angular/forms";
+import {UntypedFormBuilder, Validators} from "@angular/forms";
 import {AdminService} from "../../../services/admin/admin.service";
 import {AuthServiceService} from "../../../services/auth/auth-service.service";
 
@@ -22,7 +22,7 @@ export class TecknicalListComponent implements OnInit {
   isModalVisible = false;
   constructor(
     private modalService: NzModalService,
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
     public adminService:AdminService,
     public  authService: AuthServiceService
   ) { }

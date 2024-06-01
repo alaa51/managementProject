@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import {CdkDragDrop, moveItemInArray, transferArrayItem} from "@angular/cdk/drag-drop";
-import {FormBuilder, Validators} from "@angular/forms";
+import {UntypedFormBuilder, Validators} from "@angular/forms";
 import {NzModalService} from "ng-zorro-antd/modal";
 import {TasksService} from "../../services/tasks/tasks.service";
 import {AdminService} from "../../services/admin/admin.service";
@@ -125,7 +125,7 @@ export class HomeComponent implements OnInit {
     });
   }
 constructor(
-  private fb: FormBuilder,
+  private fb: UntypedFormBuilder,
   private modal: NzModalService,
   public taskService:TasksService,
   public adminService: AdminService
