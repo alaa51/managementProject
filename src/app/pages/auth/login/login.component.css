@@ -1,5 +1,5 @@
 .background-image {
-  background-image: url(../../../../assets/images/backgroundLogin.jpeg);
+  background-image: url(../../../../assets/img/carousel-1.jpg);
   background-size: cover;
   height: 100vh;
   display: flex;
@@ -13,6 +13,7 @@
   padding: 20px;
   box-shadow: 0 14px 8px rgba(246, 246, 246, 0.2);
   border-radius: 20px;
+  text-align: center;
 }
 
 .card-title {
@@ -40,4 +41,5 @@ button[type="submit"] {
   transition: background-color 0.3s ease;
   width: 80%;
   border-radius: 10px;
+  margin-bottom: 20px;
 }

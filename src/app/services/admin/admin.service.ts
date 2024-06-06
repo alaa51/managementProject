@@ -12,7 +12,31 @@ export class AdminService {
   getTechnical():Observable<any>{
     return  this.http.get(BASE_URL+'users/all/technicians')
   }
+  getAllUsers():Observable<any>{
+    return  this.http.get(BASE_URL+'users/admin/get/all/users')
+  }
   getClient():Observable<any>{
     return  this.http.get(BASE_URL+'users/all/clients')
+  }
+  getProduct():Observable<any>{
+    return  this.http.get(BASE_URL+'product/all')
+  }
+  getProductAll():Observable<any>{
+    return  this.http.get(BASE_URL+'product/all')
+  }
+  getImage(id:any):Observable<Blob>{
+    return  this.http.get(BASE_URL+'product/all/'+id+'/image', { responseType: 'blob' });
+  }
+  createProduct(data:any):Observable<any>{
+    return this.http.post(BASE_URL+'product',data)
+  }
+  deleteProduct(id:any):Observable<any>{
+    return this.http.delete(BASE_URL+'product/'+id)
+  }
+  acceptTask(id:any):Observable<any>{
+    return  this.http.put(BASE_URL+'task/admin/'+id+'/accept',{})
+  }
+  rejectTask(id:any, cause: any):Observable<any>{
+    return  this.http.put(BASE_URL+'task/admin/'+id+'/reject?causeOfRejection='+cause,{})
   }
 }

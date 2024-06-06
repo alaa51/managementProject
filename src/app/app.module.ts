@@ -37,6 +37,30 @@ import {NzSelectModule} from "ng-zorro-antd/select";
 import { UserDetailsComponent } from './pages/admin/user-details/user-details.component';
 import {HttpInterceptorService} from "./config/interceptor.interceptor";
 import {NzNotificationModule} from "ng-zorro-antd/notification";
+import { LandingComponent } from './pages/landing/landing.component';
+import {AboutUsComponent} from "./components/about-us/about-us.component";
+import {BannerComponent} from "./components/banner/banner.component";
+import {ExperienceComponent} from "./components/experience/experience.component";
+import {FactsComponent} from "./components/facts/facts.component";
+import {FooterComponent} from "./components/footer/footer.component";
+import {HeaderComponent} from "./components/header/header.component";
+import {OURSERVICESComponent} from "./components/our-services/our-services.component";
+import {OurTeamComponent} from "./components/our-team/our-team.component";
+import {PpComponent} from "./components/pp/pp.component";
+import {RendezVousComponent} from "./components/rendez-vous/rendez-vous.component";
+import {TESTIMONIALComponent} from "./components/testimonial/testimonial.component";
+import { RegisterComponent } from './pages/auth/register/register.component';
+import { AdminProductComponent } from './pages/admin/admin-product/admin-product.component';
+import {NzCollapseModule} from "ng-zorro-antd/collapse";
+import { ProductComponent } from './pages/product/product.component';
+import {NzInputNumberModule} from "ng-zorro-antd/input-number";
+import { ReclamationComponent } from './pages/reclamation/reclamation.component';
+import {NzDatePickerModule} from "ng-zorro-antd/date-picker";
+import { TaskDetailsComponent } from './pages/home/task-details/task-details.component';
+import { MyOrdersComponent } from './pages/my-orders/my-orders.component';
+import { BasketComponent } from './pages/basket/basket.component';
+import { AllOrderComponent } from './pages/admin/all-order/all-order.component';
+import { SupervisorComponent } from './pages/admin/supervisor/supervisor.component';
 
 registerLocaleData(en);
 
@@ -52,6 +76,27 @@ registerLocaleData(en);
     DashboardComponent,
     ProfilComponent,
     UserDetailsComponent,
+    LandingComponent,
+    AboutUsComponent,
+    BannerComponent,
+    ExperienceComponent,
+    FactsComponent,
+    FooterComponent,
+    HeaderComponent,
+    OURSERVICESComponent,
+    OurTeamComponent,
+    PpComponent,
+    RendezVousComponent,
+    TESTIMONIALComponent,
+    RegisterComponent,
+    AdminProductComponent,
+    ProductComponent,
+    ReclamationComponent,
+    TaskDetailsComponent,
+    MyOrdersComponent,
+    BasketComponent,
+    AllOrderComponent,
+    SupervisorComponent
 
   ],
   imports: [
@@ -77,7 +122,10 @@ registerLocaleData(en);
     NzTableModule,
     NzFormModule,
     NzSelectModule,
-    NzNotificationModule
+    NzNotificationModule,
+    NzCollapseModule,
+    NzInputNumberModule,
+    NzDatePickerModule
   ],
   providers: [
     { provide: NZ_I18N,

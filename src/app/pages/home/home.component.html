@@ -14,6 +14,7 @@
             <nz-card nzTitle="{{ task.name }}" nzExtra="ID: {{ task.id }}">
               <p>Description: {{ task.description }}</p>
               <p>Time: {{ task.timeInHours }}</p>
+              <p>End AT: {{ task?.endAt?.slice(0,10) }}</p>
               <p>Assigned To:{{ task.assignedTo === null ? 'No Technical Assign' : task.assignedTo.firstName +' ' + task.assignedTo.lastName }}</p>
             </nz-card>
           </div>
@@ -34,6 +35,7 @@
             <nz-card nzTitle="{{ task.name }}" nzExtra="ID: {{ task.id }}">
               <p>Description: {{ task.description }}</p>
               <p>Time: {{ task.timeInHours }}</p>
+              <p>End AT: {{ task?.endAt?.slice(0,10) }}</p>
               <p>Assigned To: {{ task.assignedTo === null ? 'No Technical Assign' : task.assignedTo.firstName +' ' + task.assignedTo.lastName }}</p>
             </nz-card>
           </div>
@@ -54,6 +56,7 @@
             <nz-card nzTitle="{{ task.name }}" nzExtra="ID: {{ task.id }}">
               <p>Description: {{ task.description }}</p>
               <p>Time: {{ task.timeInHours }}</p>
+              <p>End AT: {{ task?.endAt?.slice(0,10) }}</p>
               <p>Assigned To: {{ task.assignedTo === null ? 'No Technical Assign' : task.assignedTo.firstName +' ' + task.assignedTo.lastName }}</p>
             </nz-card>
           </div>
@@ -62,8 +65,7 @@
     </div>
   </nz-tab>
   <nz-tab nzTitle="Tasks">
-    <button nz-button style="margin-bottom: 10px; margin-right: 10px" nzType="primary" *ngIf="userData.role.name === 'CLIENT'" (click)="addTask()">Add Task</button>
-    <button nz-button style="margin-bottom: 10px" nzType="default" (click)="addContact()" *ngIf="userData.role.name === 'TECHNICIAN'">Add Contact</button>
+    <button nz-button style="margin-bottom: 10px; margin-right: 10px" nzType="primary" *ngIf="userData.role.name === 'CLIENT'" (click)="addTask()">Add Project</button>
     <nz-table #basicTable [nzData]="tasks" nzBordered>
       <thead>
       <tr>
@@ -71,10 +73,11 @@
         <th >Description</th>
         <th >Time</th>
         <th >Created At</th>
+        <th >end At</th>
         <th >Assigned To</th>
         <th >Progress</th>
         <th >Status</th>
-        <th *ngIf="userData.role.name !== 'TECHNICIAN'">Action</th>
+        <th nzWidth="30%">Action</th>
       </tr>
       </thead>
       <tbody>
@@ -83,6 +86,7 @@
         <td>{{ task.description }}</td>
         <td>{{ task.timeInHours }} Hours</td>
         <td>{{ task.createAt }}</td>
+        <td>{{ task.endAt }}</td>
         <td>{{ task.assignedTo === null ? 'No Technical Assign' : task.assignedTo.firstName +' ' + task.assignedTo.lastName }}</td>
         <td *ngIf="userData.role.name === 'TECHNICIAN'">
           <nz-select  [(ngModel)]="task.progress" nzPlaceHolder="Select a Percent" (ngModelChange)="onProgressChange(task, $event)">
@@ -95,20 +99,26 @@
         <td [ngClass]="{'status-todo': task.status === 'TODO', 'status-current': task.status === 'CURRENT', 'status-completed': task.status === 'COMPLETED'}">
           {{ task.status }}
         </td>
-        <td *ngIf="userData.role.name !== 'TECHNICIAN'">
+        <td>
           <button style="margin-right: 10px" nz-button nzType="primary" *ngIf="userData.role.name === 'CLIENT'" (click)="openEditModal(task)">
             <span nz-icon nzType="edit" nzTheme="outline"></span>
             Edit
           </button>
-       <!--   <div>
-            Assign to
-            <nz-select  [(ngModel)]="task?.assignedTo?.id" name="name"  nzPlaceHolder="Select a  Technician" (ngModelChange)="onTechnicalChange(task,$event)">
-              <nz-option *ngFor="let teck of listTechnician" [nzValue]="teck.id"  [nzLabel]="teck.firstName + ' ' + teck.lastName"></nz-option>
-            </nz-select>
-          </div>-->
-          <button nz-button nzType="primary" *ngIf="userData.role.name === 'CLIENT'" (click)="confirmDelete(task)" nzDanger>
+          <button style="margin-right: 10px"nz-button nzType="primary" *ngIf="userData.role.name === 'CLIENT'" (click)="confirmDelete(task)" nzDanger>
             <span nz-icon nzType="delete" nzTheme="outline" ></span>
             delete
+          </button>
+          <button (click)="onAccept(task.id)" style="margin-right: 10px" nz-button nzType="primary"  *ngIf="userData.role.name === 'ADMIN' && task.isAccepted === false ">
+            <span nz-icon nzType="check-circle" nzTheme="outline" ></span>
+            Accept
+          </button>
+          <button (click)="rejectProject(task.id)" style="margin-right: 10px" nz-button nzType="primary"  *ngIf="userData.role.name === 'ADMIN'&& task.isAccepted === false" nzDanger>
+            <span nz-icon nzType="delete" nzTheme="outline" ></span>
+            reject
+          </button>
+          <button (click)="handleNavigate(task.id)"  nz-button nzType="primary">
+            <span nz-icon nzType="info-circle" nzTheme="outline" ></span>
+            Details
           </button>
 
         </td>
@@ -117,7 +127,7 @@
     </nz-table>
   </nz-tab>
 </nz-tabset>
-<nz-modal [(nzVisible)]="isModalVisible" nzTitle="Edit Task" (nzOnCancel)="handleCancel()" (nzOnOk)="handleOk()">
+<nz-modal [(nzVisible)]="isModalVisible" nzTitle="Task" (nzOnCancel)="handleCancel()" (nzOnOk)="handleOk()">
   <ng-container *nzModalContent>
   <form nz-form [formGroup]="taskForm" (ngSubmit)="handleOk()">
     <nz-form-item>
@@ -129,7 +139,7 @@
     <nz-form-item>
       <nz-form-label><label for="description">Description</label></nz-form-label>
       <nz-form-control>
-        <input nz-input id="description" formControlName="description" />
+        <textarea nz-input id="description" formControlName="description" rows="3" ></textarea>
       </nz-form-control>
     </nz-form-item>
     <nz-form-item >
@@ -138,30 +148,22 @@
         <input nz-input type="number" id="timeInHours" formControlName="timeInHours" />
       </nz-form-control>
     </nz-form-item>
+    <nz-form-item >
+      <nz-form-label ><label for="timeInHours">End At</label></nz-form-label>
+      <nz-form-control >
+        <nz-date-picker nzSize="large" id="endAt" formControlName="endAt"></nz-date-picker>
+      </nz-form-control>
+    </nz-form-item>
   </form>
   </ng-container>
 </nz-modal>
-<nz-modal [(nzVisible)]="isContactVisible" nzTitle="Contact" (nzOnCancel)="handleCancelContact()" (nzOnOk)="handleOkContact()">
+<nz-modal [(nzVisible)]="isContactVisible" nzTitle="Cause" (nzOnCancel)="handleCancelContact()" (nzOnOk)="handleOkContact()">
   <ng-container *nzModalContent>
-  <form nz-form [formGroup]="contact" (ngSubmit)="handleCancelContact()">
+  <form nz-form nzLayout="vertical" [formGroup]="contact" (ngSubmit)="handleCancelContact()">
     <nz-form-item>
-      <nz-form-label><label for="title">Title</label></nz-form-label>
+      <nz-form-label><label for="title">Cause</label></nz-form-label>
       <nz-form-control>
         <input nz-input id="title" formControlName="title" />
-      </nz-form-control>
-    </nz-form-item>
-    <nz-form-item>
-      <nz-form-label><label for="description">Description</label></nz-form-label>
-      <nz-form-control>
-        <input nz-input formControlName="description" />
-      </nz-form-control>
-    </nz-form-item>
-    <nz-form-item >
-      <nz-form-label ><label for="ticket">ticket</label></nz-form-label>
-      <nz-form-control >
-        <nz-select formControlName="ticket" id="ticket"  nzPlaceHolder="Select a  ticket">
-          <nz-option *ngFor="let progress of tasks" [nzValue]="progress.name" [nzLabel]="progress.name"></nz-option>
-        </nz-select>
       </nz-form-control>
     </nz-form-item>
   </form>

@@ -4,6 +4,7 @@ import {FormBuilder, Validators} from "@angular/forms";
 import {NzModalService} from "ng-zorro-antd/modal";
 import {TasksService} from "../../services/tasks/tasks.service";
 import {AdminService} from "../../services/admin/admin.service";
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-home',
@@ -21,6 +22,7 @@ export class HomeComponent implements OnInit {
   progressSteps = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
  value= 0
   listTechnician:any =[]
+  selectedId: any;
   name: any
 
   tasks:any = [];
@@ -31,15 +33,15 @@ export class HomeComponent implements OnInit {
   current:any = [];
 
   completed:any = [];
+  cause: string = ''
   taskForm = this.fb.group({
     name: ['', Validators.required],
     description: ['', Validators.required],
     timeInHours: ['', Validators.required],
+    endAt: [null, Validators.required],
   });
   contact = this.fb.group({
     title: ['', Validators.required],
-    description: ['', Validators.required],
-    ticket: ['', Validators.required],
   });
   onGetTechnical():void{
     this.adminService.getTechnical().subscribe((res:any)=>{
@@ -81,8 +83,9 @@ export class HomeComponent implements OnInit {
     this.taskForm.reset();
     this.isModalVisible = true;
   }
-  addContact(): void {
+  rejectProject(id:any): void {
     this.contact.reset();
+    this.selectedId = id
     this.isContactVisible = true;
   }
 
@@ -103,7 +106,7 @@ export class HomeComponent implements OnInit {
   }
   handleOkContact(): void {
     if (this.contact.valid) {
-      this.onContactAdmin();
+      this.onContactAdmin(this.selectedId);
       this.isContactVisible = false;
     }
   }
@@ -128,14 +131,21 @@ constructor(
   private fb: FormBuilder,
   private modal: NzModalService,
   public taskService:TasksService,
-  public adminService: AdminService
+  public adminService: AdminService,
+  public router:Router
 ) {
 }
 
 onGetTask():void{
-    this.taskService.getTasks().subscribe((res:any)=>{
-      this.tasks = res.data
-    })
+    if (this.userData.role.name === 'CLIENT'){
+      this.taskService.getTasksByClient(this.userData.id).subscribe((res:any)=>{
+        this.tasks = res.data
+      })
+    }else {
+      this.taskService.getTasks().subscribe((res:any)=>{
+        this.tasks = res.data
+      })
+    }
 }
   onProgressChange(task: any, progress: number) {
     task.progress = progress;
@@ -143,11 +153,6 @@ onGetTask():void{
       this.onGetTask()
     })
   }
- /* onTechnicalChange( task:any, technicianID: any) {
-    this.taskService.assignTo(task.id,name,task).subscribe((res:any)=>{
-      console.log(res)
-    })
-  }*/
   onAddTAsk():void{
     let newData = {...this.taskForm.value, progress: 0,status: "TODO"}
     this.taskService.addTasks(newData).subscribe((res:any)=>{
@@ -210,16 +215,32 @@ onGetTask():void{
       this.onGetTask();
     })
  }
-onContactAdmin():void{
+onContactAdmin(id:any):void{
     let name = this.contact.value.title
-    let description = this.contact.value.description
-    let ticket = this.contact.value.ticket
-    this.taskService.contactAdmin(name,description,ticket).subscribe((res:any)=>{
-      console.log(res)
+  console.log(name)
+    this.adminService.rejectTask(id,name).subscribe((res:any)=>{
+      this.onGetTask();
+     this.onGetCurrentFiltered('TODO')
+      this.onGetCurrentFiltered('CURRENT')
+      this.onGetCurrentFiltered('COMPLETED')
     })
 }
 
-
+onAccept(id:any):void{
+    this.adminService.acceptTask(id).subscribe((res)=>{
+      this.onGetTask();
+      this.onGetCurrentFiltered('TODO')
+      this.onGetCurrentFiltered('CURRENT')
+      this.onGetCurrentFiltered('COMPLETED')
+    })
+}
+  handleNavigate(id:any):void{
+    console.log(id)
+    this.router.navigate(
+      ['/dashboard/taskDetails'],
+      { queryParams: { id: id} }
+    );
+  }
 
   ngOnInit(): void {
     console.log(this.userData?.id)

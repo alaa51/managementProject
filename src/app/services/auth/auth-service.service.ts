@@ -15,9 +15,13 @@ export class AuthServiceService {
   RegisterTechnical (data: any): Observable<any>{
     return this.http.post<any>(BASE_URL+ 'auth/register?roleName=TECHNICIAN' , data)
   }
-  RegisterClient (data: any): Observable<any>{
-    return this.http.post<any>(BASE_URL+ 'auth/register?roleName=CLIENT' , data)
+  RegisterSupervisor (data: any): Observable<any>{
+    return this.http.post<any>(BASE_URL+ 'auth/admin/register?roleName=SUPERVISOR' , data)
   }
+  RegisterClient (data: any): Observable<any>{
+    return this.http.post<any>(BASE_URL+ 'auth/register' , data)
+  }
+
   enableUSer(id:string):Observable<any>{
     return  this.http.put(BASE_URL+'users/admin/enable/'+ id, {})
   }

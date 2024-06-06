@@ -12,6 +12,9 @@ export class TasksService {
   getTasks():Observable<any>{
     return this.http.get(BASE_URL+ 'task/all')
   }
+  getTasksByClient(id:any):Observable<any>{
+    return this.http.get(BASE_URL+ 'task/all/search?taskCreatedBy='+id)
+  }
   addTasks(data:any):Observable<any>{
     return this.http.post(BASE_URL+ 'task/admin', data)
   }
@@ -36,7 +39,23 @@ export class TasksService {
   contactAdmin(name:any, description:any, task: any):Observable<any>{
     return  this.http.get(BASE_URL+'task/technician/send?title='+name+'&description='+description+'&task='+task)
   }
+  reclamation(name:any, description:any):Observable<any>{
+    return  this.http.get(BASE_URL+'users/all/reclamation?subject='+name+'&description='+description)
+  }
   assignTo(id: any, technicianID:any, data:any):Observable<any>{
     return  this.http.put(BASE_URL+ 'task/admin/'+id+'?assignedToId='+ technicianID,data)
   }
+  getProjectDetails(id:any):Observable<any>{
+    return this.http.get(BASE_URL+ 'task/all/search?taskId='+id)
+  }
+  addSubTask(taskId:any,data:any):Observable<any>{
+    return this.http.post(BASE_URL + 'task/technician/'+taskId+'/sous-tasks', data)
+  }
+  removeSubTask(taskId:any,id:any):Observable<any>{
+    return this.http.delete(BASE_URL + 'task/technician/'+taskId+'/sous-tasks/'+id)
+  }
+  updateSubTask(taskId:any,id:any, data:any):Observable<any>{
+    return this.http.put(BASE_URL + 'task/technician/'+taskId+'/sous-tasks/'+id, data)
+  }
+
 }

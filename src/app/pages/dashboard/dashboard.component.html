@@ -6,9 +6,9 @@
             [(nzCollapsed)]="isCollapsed"
             [nzTrigger]="null">
     <div class="sidebar-logo">
-      <a href="https://ng.ant.design/" target="_blank">
-        <img src="https://ng.ant.design/assets/img/logo.svg" alt="logo">
-        <h1>Ant Design Of Angular</h1>
+      <a>
+        <i style="font-size: 30px" class="fa fa-building text-primary me-3"></i>
+        <h1>MBG</h1>
       </a>
     </div>
     <ul nz-menu nzTheme="dark" nzMode="inline" [nzInlineCollapsed]="isCollapsed">
@@ -18,19 +18,40 @@
       </li>
       <li  nz-menu-item nzMatchRouter routerLink="/dashboard/home">
         <i nz-icon nzType="home"></i>
-        <span>Home</span>
+        <span>Suivi</span>
+      </li>
+      <li  nz-menu-item nzMatchRouter routerLink="/dashboard/product">
+        <i nz-icon nzType="appstore"></i>
+        <span>product</span>
+      </li>
+      <li *ngIf="userData.role.name === 'CLIENT'"  nz-menu-item nzMatchRouter routerLink="/dashboard/myOrders">
+        <i nz-icon nzType="shop"></i>
+        <span>My Orders</span>
       </li>
       <li  nz-menu-item nzMatchRouter routerLink="/dashboard/profile">
         <i nz-icon nzType="user"></i>
         <span>Profile</span>
       </li>
+      <li *ngIf="userData.role.name === 'CLIENT'"  nz-menu-item nzMatchRouter routerLink="/dashboard/reclamation">
+        <i nz-icon nzType="warning"></i>
+        <span>Reclamation</span>
+      </li>
       <li *ngIf="userData.role.name === 'ADMIN'" nz-submenu nzOpen nzTitle="Admin" nzIcon="setting">
         <ul>
+          <li nz-menu-item nzMatchRouter>
+            <a routerLink="/dashboard/admin-product">Product</a>
+          </li>
           <li nz-menu-item nzMatchRouter>
             <a routerLink="/dashboard/technical-list">Technicals</a>
           </li>
           <li nz-menu-item nzMatchRouter>
+            <a routerLink="/dashboard/supervisor">Supervisor</a>
+          </li>
+          <li nz-menu-item nzMatchRouter>
             <a routerLink="/dashboard/user-list">Client list</a>
+          </li>
+          <li nz-menu-item nzMatchRouter>
+            <a routerLink="/dashboard/all-Orders">All Order</a>
           </li>
 
         </ul>
@@ -50,6 +71,7 @@
                [nzType]="isCollapsed ? 'menu-unfold' : 'menu-fold'"
             ></i>
         </span>
+        <span *ngIf="userData.role.name === 'CLIENT'"  routerLink="/dashboard/basket" class="header-Shop" style="padding-top: 24px" nz-icon nzType="shopping-cart" nzTheme="outline"></span>
       </div>
     </nz-header>
     <nz-content>

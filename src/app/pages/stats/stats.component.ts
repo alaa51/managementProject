@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import Chart from 'chart.js/auto';
 import {AnalysisService} from "../../services/analysis/analysis.service";
 import {TasksService} from "../../services/tasks/tasks.service";
+import {forkJoin} from "rxjs";
 
 @Component({
   selector: 'app-stats',
@@ -11,6 +12,7 @@ import {TasksService} from "../../services/tasks/tasks.service";
 export class StatsComponent implements OnInit {
   public chart: any;
   public chart2: any;
+  public chart3: any;
   numberOfClients = 0;
   numberOfTasks = 0;
   completedTasks = 0;
@@ -38,6 +40,24 @@ export class StatsComponent implements OnInit {
         aspectRatio:2.5
       }
 
+    });
+  }
+  createPieChart() {
+    this.chart3 = new Chart('MyChart3', {
+      type: 'pie',
+      data: {
+        labels: ['Task', 'Completed'],
+        datasets: [
+          {
+            label: '',
+            data:  [this.numberOfTasks, this.completedTasks],
+            backgroundColor: ['yellow', 'purple']
+          }
+        ]
+      },
+      options: {
+        aspectRatio: 2.5
+      }
     });
   }
   createChart2(){
@@ -79,13 +99,15 @@ export class StatsComponent implements OnInit {
     })
 
   }
-  onGetTask():void{
-    this.taskService.getFilteredTask('COMPLETED').subscribe((res:any)=>{
-      this.completedTasks = res.data.length
-    })
-    this.taskService.getTasks().subscribe((res:any)=>{
-      this.numberOfTasks = res.data.length
-    })
+  onGetTask(): void {
+    forkJoin({
+      completedTasks: this.taskService.getFilteredTask('COMPLETED'),
+      allTasks: this.taskService.getTasks()
+    }).subscribe((results: any) => {
+      this.completedTasks = results.completedTasks.data.length;
+      this.numberOfTasks = results.allTasks.data.length;
+      this.createPieChart();
+    });
   }
   onGetTasksInMonth():void{
     this.analysisService.getTasksInMonth().subscribe((res)=>{
