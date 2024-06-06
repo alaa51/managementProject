@@ -31,7 +31,7 @@ export class AdminService {
     return this.http.post(BASE_URL+'product',data)
   }
   deleteProduct(id:any):Observable<any>{
-    return this.http.delete(BASE_URL+'product/'+id)
+    return this.http.delete(BASE_URL+'product/admin/'+id)
   }
   acceptTask(id:any):Observable<any>{
     return  this.http.put(BASE_URL+'task/admin/'+id+'/accept',{})
